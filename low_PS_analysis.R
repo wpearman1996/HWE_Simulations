@@ -35,9 +35,9 @@ ggplot(pcst_lowPS, aes(x=V1, y=Filter)) +
 pcst_lowPS$Filter<-ifelse(pcst_lowPS$Filter=="nohwe","No Filt",
                            ifelse(pcst_lowPS$Filter=="hwe_out_any","HWE Out Any",
                                   ifelse(pcst_lowPS$Filter=="hwe_out_all","HWE Out All","HWE Out Across")))
-ggplot(pcst_lowPS,aes(x=V1,y=Filter))+ geom_joy() + theme_minimal() + ggtitle("low_PS_PCA_PCst") +
+ggplot(pcst_lowPS,aes(x=V1,y=Filter))+ geom_density_ridges() + theme_minimal() + ggtitle("low_PS_PCA_PCst") +
   xlab("PCst")
-ggplot(pcst_lowPS[pcst_lowPS$Filter!="HWE Out Across",],aes(x=V1,y=Filter))+ geom_joy() + theme_minimal() + ggtitle("low_PS_PCA_PCst") +
+ggplot(pcst_lowPS[pcst_lowPS$Filter!="HWE Out Across",],aes(x=V1,y=Filter))+ geom_density_ridges() + theme_minimal() + ggtitle("low_PS_PCA_PCst") +
   xlab("PCst")
 t.test(pcst_lowPS$V1[pcst_lowPS$Filter=="HWE Out All"],
        pcst_lowPS$V1[pcst_lowPS$Filter=="No Filt"],alternative = "greater")
@@ -118,7 +118,7 @@ b$Filt<-ifelse(b$Filt=="out_across","HWE Out Across",ifelse(b$Filt=="out_any","H
                                                             ifelse(b$Filt=="out_all","HWE Out All", "No HWE")))
 b$TrueFst<-truefstsx$truefstsx[match(b$Seed,truefstsx$seed)]
 b$Stat <- b$TrueFst-b$InferredFst
-ggplot(b,aes(x=Stat,y=Filt))+ geom_joy() + theme_minimal() + ggtitle("low_PS_PCA_PCst") +
+ggplot(b,aes(x=Stat,y=Filt))+ geom_density_ridges() + theme_minimal() + ggtitle("low_PS_PCA_PCst") +
   xlab("TrueFst-InfFst")
 b$FileName<-names(fst_simulations_dat)
 b$FileName<-word(b$FileName,1,2,sep="[.]")
@@ -131,17 +131,17 @@ pcst_lowPS$TrueFst<-b$TrueFst[match(pcst_lowPS$FileNames,b$FileName)]
 dev.off()
 ggplot(pcst_lowPS,aes(x=V1,y=Fst,col=Filter)) + geom_point()
 library(cowplot)
-low_fst_means <- ggplot(b,aes(x=InferredFst,y=Filt))+ geom_joy() + theme_minimal() +
+low_fst_means <- ggplot(b,aes(x=InferredFst,y=Filt))+ geom_density_ridges() + theme_minimal() +
   xlab("Inferred Fst")
-low_fst_stand_truth <- ggplot(b,aes(x=Stat,y=Filt))+ geom_joy() + theme_minimal() +
+low_fst_stand_truth <- ggplot(b,aes(x=Stat,y=Filt))+ geom_density_ridges() + theme_minimal() +
   xlab("Inferred Fst")
 low_pcst_fst <- ggplot(pcst_lowPS,aes(x=V1,y=Fst,col=Filter)) + geom_point() + geom_smooth(method = 'loess') +
   xlab("PCst")
 low_pcst_fst_noacross <- ggplot(pcst_lowPS[pcst_lowPS$Filter!="HWE Out Across",],aes(x=V1,y=Fst,col=Filter)) +
   geom_point() + geom_smooth(method = 'loess') + xlab("PCst")
-low_pcst_all <- ggplot(pcst_lowPS,aes(x=V1,y=Filter))+ geom_joy() + theme_minimal() +
+low_pcst_all <- ggplot(pcst_lowPS,aes(x=V1,y=Filter))+ geom_density_ridges() + theme_minimal() +
   xlab("PCst")
-low_pcst_noacross <- ggplot(pcst_lowPS[pcst_lowPS$Filter!="HWE Out Across",],aes(x=V1,y=Filter))+ geom_joy() + theme_minimal() +
+low_pcst_noacross <- ggplot(pcst_lowPS[pcst_lowPS$Filter!="HWE Out Across",],aes(x=V1,y=Filter))+ geom_density_ridges() + theme_minimal() +
   xlab("PCst")
 low_pcst_truefst <- ggplot(pcst_lowPS,aes(x=V1,y=TrueFst,col=Filter)) + geom_point() + geom_smooth(method = 'loess') +
   xlab("PCst")
@@ -170,7 +170,7 @@ struc_mats$filter<-ifelse(grepl("nohwe",struc_mats$files),"No Filter",
                                  ifelse(grepl("out_across",struc_mats$files),
                                         "HWE Out Across", "HWE Out All"))) 
 
-low_struc_nucdist <- ggplot(struc_mats,aes(x=struc_mats,y=filter))+ geom_joy() + theme_minimal() +
+low_struc_nucdist <- ggplot(struc_mats,aes(x=struc_mats,y=filter))+ geom_density_ridges() + theme_minimal() +
   xlab("Inferred Fst") + ggtitle("Structure low Average Nuc Dist")
 low_struc_nucdist
 library(cowplot)
