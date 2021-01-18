@@ -1,0 +1,187 @@
+initialize() {
+	defineConstant("seed",getSeed());
+	initializeSLiMModelType("nonWF");
+	defineConstant("K", 1000);
+	defineConstant("m", 0.001);
+	defineConstant("ngen",10000);
+	defineConstant("mu1",0.08);
+	defineConstant("L", c(0.2, 0.05, 0.05, 0.1, 0.25, 0.5, 0.75, 1.0));
+	defineConstant("Z",96600006);
+	initializeSLiMOptions(nucleotideBased=T);
+	defineConstant("genome", initializeAncestralNucleotides("~/HWE_Study_Dec2020/linear_pop_anc_fasta_nodemography.txt"));
+	initializeMutationTypeNuc("m1",0.5,"f",0.0);
+	m1.convertToSubstitution = T;
+	initializeGenomicElementType("g1", m1,1, mmJukesCantor(1e-8));// c(0.99,0.01));
+	initializeGenomicElement(g1, 0, Z);
+	initializeSex(chromosomeType="A");
+	lines = readFile("~/HWE_Study_Dec2020/comeron_chr2_chr3_recom_map.txt");
+	rates = NULL;
+	ends = NULL;
+	
+	for (line in lines)
+	{
+		components = strsplit(line, "\t");
+		ends = c(ends, asInteger(components[0]));
+		rates = c(rates, asFloat(components[1]));
+	}
+	
+	ends = c(ends[1:(size(ends)-1)] - 2, 96600006);
+	rates = rates * 1e-8;
+	initializeRecombinationRate(rates, ends);
+}
+reproduction(NULL, "F") {
+	if (individual.age > 2) {
+		mate = subpop.sampleIndividuals(1,sex ="M", minAge=3);
+		subpop.addCrossed(individual, mate);
+	}
+}
+reproduction(NULL, "M") {
+	if (individual.age > 2) {
+		mate = subpop.sampleIndividuals(1,sex="F", minAge=3);
+		subpop.addCrossed(mate,individual);
+	}
+}
+1 {
+	//sim.setValue("FST", 0.0);
+	sim.addSubpop("p1", 1000);
+	sim.addSubpop("p2", 0);
+	sim.addSubpop("p3", 0);
+	sim.addSubpop("p4", 0);
+	sim.addSubpop("p5", 0);
+	sim.addSubpop("p6", 0);
+	sim.addSubpop("p7", 0);
+	sim.addSubpop("p8", 0);
+	sim.addSubpop("p9", 0);
+	sim.addSubpop("p10", 0);
+	sim.addSubpop("p11", 0);
+	sim.addSubpop("p12", 0);
+	p1.individuals.age = rdunif(1000, min=0, max=7);}
+
+135000 early() { // change to generation split start
+		nIndA = sum(p1.individualCount); nMigA = nIndA * mu1; 
+  mig2 = sample(p1.individuals, asInteger(nMigA));
+  p2.takeMigrants(mig2);
+  mig3 = sample(p1.individuals, asInteger(nMigA));
+  p3.takeMigrants(mig3);
+  mig4 = sample(p1.individuals, asInteger(nMigA));
+  p4.takeMigrants(mig4);
+  mig5 = sample(p1.individuals, asInteger(nMigA));
+  p5.takeMigrants(mig5);
+  mig6 = sample(p1.individuals, asInteger(nMigA));
+  p6.takeMigrants(mig6);
+  mig7 = sample(p1.individuals, asInteger(nMigA));
+  p7.takeMigrants(mig7);
+  mig8 = sample(p1.individuals, asInteger(nMigA));
+  p8.takeMigrants(mig8);
+  mig9 = sample(p1.individuals, asInteger(nMigA));
+  p9.takeMigrants(mig9);
+  mig10 = sample(p1.individuals, asInteger(nMigA));
+  p10.takeMigrants(mig10);
+  mig11 = sample(p1.individuals, asInteger(nMigA));
+  p11.takeMigrants(mig11);
+  mig12 = sample(p1.individuals, asInteger(nMigA));
+  p12.takeMigrants(mig12);
+  }
+1:135000 early(){ // change to generation split start
+	inds = p1.individuals;
+	ages = inds.age;
+	mortality = L[ages];
+	survival = 1 - mortality;
+	inds.fitnessScaling = survival;
+	p1.fitnessScaling = K / (p1.individualCount * mean(survival));
+}
+
+135000:150000 early(){  // change to generation split start
+	// life table based individual mortality
+	for (subpop in sim.subpopulations){
+		inds = subpop.individuals;
+		ages = inds.age;
+		mortality = L[ages];
+		survival = 1 - mortality;
+		inds.fitnessScaling = survival;
+		subpop.fitnessScaling = K / (subpop.individualCount * mean(survival));
+	}
+}
+135000:150000 early() { // change to generation split start
+	nInd1 = sum(p1.individualCount); nMig1 = rpois(1,nInd1 * m); mig1 = sample(p1.individuals, asInteger(nMig1));
+	nInd2 = sum(p2.individualCount); nMig2 = rpois(1,nInd2 * m); mig2 = sample(p2.individuals, asInteger(nMig2));
+	nInd3 = sum(p3.individualCount); nMig3 = rpois(1,nInd3 * m); mig3 = sample(p3.individuals, asInteger(nMig3));
+	nInd4 = sum(p4.individualCount); nMig4 = rpois(1,nInd4 * m); mig4 = sample(p4.individuals, asInteger(nMig4));
+	nInd5 = sum(p5.individualCount); nMig5 = rpois(1,nInd5 * m); mig5 = sample(p5.individuals, asInteger(nMig5));
+  nInd6 = sum(p6.individualCount); nMig6 = rpois(1,nInd6 * m); mig6 = sample(p6.individuals, asInteger(nMig6));
+  nInd7 = sum(p7.individualCount); nMig7 = rpois(1,nInd7 * m); mig7 = sample(p7.individuals, asInteger(nMig7));
+  nInd8 = sum(p8.individualCount); nMig8 = rpois(1,nInd8 * m); mig8 = sample(p8.individuals, asInteger(nMig8));
+  nInd9 = sum(p9.individualCount); nMig9 = rpois(1,nInd9 * m); mig9 = sample(p9.individuals, asInteger(nMig9));
+  nInd10 = sum(p10.individualCount); nMig10 = rpois(1,nInd10 * m); mig10 = sample(p10.individuals, asInteger(nMig10));  
+  nInd11 = sum(p11.individualCount); nMig11 = rpois(1,nInd11 * m); mig11 = sample(p11.individuals, asInteger(nMig11));
+	nInd12 = sum(p12.individualCount); nMig12 = rpois(1,nInd12 * m); mig12 = sample(p12.individuals, asInteger(nMig12));
+	
+  
+	nInd13 = sum(p12.individualCount); nMig13 = rpois(1,nInd13 * m); mig13 = sample(setDifference(p12.individuals, mig12), asInteger(nMig13));
+	nInd14 = sum(p11.individualCount); nMig14 = rpois(1,nInd14 * m); mig14 = sample(setDifference(p11.individuals, mig11), asInteger(nMig14));
+	nInd15 = sum(p10.individualCount); nMig15 = rpois(1,nInd15 * m); mig15 = sample(setDifference(p10.individuals, mig10), asInteger(nMig15));
+	nInd16 = sum(p9.individualCount); nMig16 = rpois(1,nInd16 * m); mig16 = sample(setDifference(p9.individuals, mig9), asInteger(nMig16));
+	nInd17 = sum(p8.individualCount); nMig17 = rpois(1,nInd17 * m); mig17 = sample(setDifference(p8.individuals, mig8), asInteger(nMig17));
+  nInd18 = sum(p7.individualCount); nMig18 = rpois(1,nInd18 * m); mig18 = sample(setDifference(p7.individuals, mig7), asInteger(nMig18));
+	nInd19 = sum(p6.individualCount); nMig19 = rpois(1,nInd19 * m); mig19 = sample(setDifference(p6.individuals, mig6), asInteger(nMig19));
+	nInd20 = sum(p5.individualCount); nMig20 = rpois(1,nInd20 * m); mig20 = sample(setDifference(p5.individuals, mig5), asInteger(nMig20));
+	nInd21 = sum(p4.individualCount); nMig21 = rpois(1,nInd21 * m); mig21 = sample(setDifference(p4.individuals, mig4), asInteger(nMig21));
+	nInd22 = sum(p3.individualCount); nMig22 = rpois(1,nInd22 * m); mig22 = sample(setDifference(p3.individuals, mig3), asInteger(nMig22));
+  nInd23 = sum(p2.individualCount); nMig23 = rpois(1,nInd23 * m); mig23 = sample(setDifference(p2.individuals, mig2), asInteger(nMig23));
+	nInd24 = sum(p1.individualCount); nMig24 = rpois(1,nInd24 * m); mig24 = sample(setDifference(p1.individuals, mig1), asInteger(nMig24));
+	p2.takeMigrants(mig1);
+  p3.takeMigrants(mig2);
+  p4.takeMigrants(mig3);
+  p5.takeMigrants(mig4);
+  p6.takeMigrants(mig5);
+  p7.takeMigrants(mig6);
+  p8.takeMigrants(mig7);
+  p9.takeMigrants(mig8);
+  p10.takeMigrants(mig9);
+  p11.takeMigrants(mig10);
+  p12.takeMigrants(mig11);
+
+  //p12.takeMigrants(mig13);
+  p11.takeMigrants(mig13);
+  p10.takeMigrants(mig14);
+  p9.takeMigrants(mig15);
+  p8.takeMigrants(mig16);
+  p7.takeMigrants(mig17);
+  p6.takeMigrants(mig18);
+  p5.takeMigrants(mig19);
+  p4.takeMigrants(mig20);
+  p3.takeMigrants(mig21);
+  p2.takeMigrants(mig22);
+  p1.takeMigrants(mig23);
+}
+late(){print(sim.generation); print(sim.countOfMutationsOfType(m1 ));}
+150000 {
+	samp1=p1.sampleIndividuals(30).genomes;
+	samp3=p3.sampleIndividuals(30).genomes;
+	samp5=p5.sampleIndividuals(30).genomes;
+	samp7=p7.sampleIndividuals(30).genomes;
+	samp9=p9.sampleIndividuals(30).genomes;
+	samp11=p11.sampleIndividuals(30).genomes;
+	vect_gen = c(samp1,samp3,samp5,samp7,samp9,samp11);
+	vect_gen.outputVCF(paste("~/HWE_Study_Dec2020/high_PS",asString(seed),".vcf",sep="_"));
+		fsts = rbind(calcFST(samp1, samp3),
+		calcFST(samp1, samp5),
+		calcFST(samp1, samp7),
+		calcFST(samp1, samp9),
+		calcFST(samp1, samp11),
+		calcFST(samp3, samp5),
+		calcFST(samp3, samp7),
+		calcFST(samp3, samp9),
+		calcFST(samp3, samp11),
+		calcFST(samp5, samp7),
+		calcFST(samp5, samp9),
+		calcFST(samp5, samp11),
+		calcFST(samp7, samp9),
+		calcFST(samp7, samp11),
+		calcFST(samp9, samp11));
+	names=c("p1p3","p1p5","p1p7","p1p9","p1p11","p3p5","p3p7","p3p9","p3p11",
+				"p5p7","p5p9","p5p11","p7p9","p7p11","p9p11");
+		fsts=cbind(asString(names),asString(fsts));
+	print(fsts);
+	writeFile(paste("~/HWE_Study_Dec2020/high_PS_fst_results",asString(seed),".txt",sep="_"),asString(fsts));
+}
