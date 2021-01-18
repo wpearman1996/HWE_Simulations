@@ -35,9 +35,9 @@ ggplot(pcst_margPS, aes(x=V1, y=Filter)) +
 pcst_margPS$Filter<-ifelse(pcst_margPS$Filter=="nohwe","No Filt",
                            ifelse(pcst_margPS$Filter=="hwe_out_any","HWE Out Any",
                                   ifelse(pcst_margPS$Filter=="hwe_out_all","HWE Out All","HWE Out Across")))
-ggplot(pcst_margPS,aes(x=V1,y=Filter))+ geom_joy() + theme_minimal() + ggtitle("marg_PS_PCA_PCst") +
+ggplot(pcst_margPS,aes(x=V1,y=Filter))+ geom_density_ridges() + theme_minimal() + ggtitle("marg_PS_PCA_PCst") +
   xlab("PCst")
-ggplot(pcst_margPS[pcst_margPS$Filter!="HWE Out Across",],aes(x=V1,y=Filter))+ geom_joy() + theme_minimal() + ggtitle("marg_PS_PCA_PCst") +
+ggplot(pcst_margPS[pcst_margPS$Filter!="HWE Out Across",],aes(x=V1,y=Filter))+ geom_density_ridges() + theme_minimal() + ggtitle("marg_PS_PCA_PCst") +
   xlab("PCst")
 t.test(pcst_margPS$V1[pcst_margPS$Filter=="HWE Out All"],
        pcst_margPS$V1[pcst_margPS$Filter=="No Filt"],alternative = "greater")
@@ -118,7 +118,7 @@ b$Filt<-ifelse(b$Filt=="out_across","HWE Out Across",ifelse(b$Filt=="out_any","H
                                                             ifelse(b$Filt=="out_all","HWE Out All", "No HWE")))
 b$TrueFst<-truefstsx$truefstsx[match(b$Seed,truefstsx$seed)]
 b$Stat <- b$TrueFst-b$InferredFst
-ggplot(b,aes(x=Stat,y=Filt))+ geom_joy() + theme_minimal() + ggtitle("marg_PS_PCA_PCst") +
+ggplot(b,aes(x=Stat,y=Filt))+ geom_density_ridges() + theme_minimal() + ggtitle("marg_PS_PCA_PCst") +
   xlab("TrueFst-InfFst")
 b$FileName<-names(fst_simulations_dat)
 b$FileName<-word(b$FileName,1,2,sep="[.]")
@@ -131,17 +131,17 @@ pcst_margPS$TrueFst<-b$TrueFst[match(pcst_margPS$FileNames,b$FileName)]
 dev.off()
 ggplot(pcst_margPS,aes(x=V1,y=Fst,col=Filter)) + geom_point()
 library(cowplot)
-marg_fst_means <- ggplot(b,aes(x=InferredFst,y=Filt))+ geom_joy() + theme_minimal() +
+marg_fst_means <- ggplot(b,aes(x=InferredFst,y=Filt))+ geom_density_ridges() + theme_minimal() +
   xlab("Inferred Fst")
-marg_fst_stand_truth <- ggplot(b,aes(x=Stat,y=Filt))+ geom_joy() + theme_minimal() +
+marg_fst_stand_truth <- ggplot(b,aes(x=Stat,y=Filt))+ geom_density_ridges() + theme_minimal() +
   xlab("Inferred Fst")
 marg_pcst_fst <- ggplot(pcst_margPS,aes(x=V1,y=Fst,col=Filter)) + geom_point() + geom_smooth(method = 'loess') +
   xlab("PCst")
 marg_pcst_fst_noacross <- ggplot(pcst_margPS[pcst_margPS$Filter!="HWE Out Across",],aes(x=V1,y=Fst,col=Filter)) +
   geom_point() + geom_smooth(method = 'loess') + xlab("PCst")
-marg_pcst_all <- ggplot(pcst_margPS,aes(x=V1,y=Filter))+ geom_joy() + theme_minimal() +
+marg_pcst_all <- ggplot(pcst_margPS,aes(x=V1,y=Filter))+ geom_density_ridges() + theme_minimal() +
   xlab("PCst")
-marg_pcst_noacross <- ggplot(pcst_margPS[pcst_margPS$Filter!="HWE Out Across",],aes(x=V1,y=Filter))+ geom_joy() + theme_minimal() +
+marg_pcst_noacross <- ggplot(pcst_margPS[pcst_margPS$Filter!="HWE Out Across",],aes(x=V1,y=Filter))+ geom_density_ridges() + theme_minimal() +
   xlab("PCst")
 marg_pcst_truefst <- ggplot(pcst_margPS,aes(x=V1,y=TrueFst,col=Filter)) + geom_point() + geom_smooth(method = 'loess') +
   xlab("PCst")
@@ -167,9 +167,20 @@ struc_mats<-lapply(files,read_struc_nucmat)
 struc_mats<-do.call("rbind",struc_mats)
 struc_mats<-data.frame(struc_mats,files)
 struc_mats$filter<-ifelse(grepl("nohwe",struc_mats$files),"No Filter",
-                                ifelse(grepl("out_any",struc_mats$files),"HWE Out Any",
-                                      ifelse(grepl("out_across",struc_mats$files),
-                          "HWE Out Across", "HWE Out All"))) 
+                          ifelse(grepl("out_any",struc_mats$files),"HWE Out Any",
+                                 ifelse(grepl("out_across",struc_mats$files),
+                                        "HWE Out Across", "HWE Out All"))) 
 
-marg_struc_nucdist <- ggplot(struc_mats,aes(x=struc_mats,y=filter))+ geom_joy() + theme_minimal() +
-  xlab("Inferred Fst") + ggtitle("Structure Marg Average Nuc Dist")
+marg_struc_nucdist <- ggplot(struc_mats,aes(x=struc_mats,y=filter))+ geom_density_ridges() + theme_minimal() +
+  xlab("Inferred Fst") + ggtitle("Structure marg Average Nuc Dist")
+marg_struc_nucdist
+library(cowplot)
+plot_grid(marg_struc_nucdist,marg_struc_nucdist)
+clummped_marg_dat <- run_structure_analysis("./structure_output/", k=6, pop_list=pop_list,
+                                           simulation="marg_PS",useclumpp=T)
+dev.off();par(mfrow=c(1,4))
+out_across<-admix_plot(clummped_marg_dat$hwe_out_across,10,180,6,F,brewer.pal(k,"Paired"),"Out Across")
+out_any<-admix_plot(clummped_marg_dat$hwe_out_across,10,180,6,F,brewer.pal(k,"Paired"),"Out Any")
+out_all<-admix_plot(clummped_marg_dat$hwe_out_across,10,180,6,F,brewer.pal(k,"Paired"),"Out All")
+nofilt<-admix_plot(clummped_marg_dat$hwe_out_across,10,180,6,F,brewer.pal(k,"Paired"),"No Filt")
+

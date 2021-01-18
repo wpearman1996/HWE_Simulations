@@ -13,6 +13,10 @@ library(hierfstat)
 library(tidyverse)
 library(adegenet)
 library(dartR)
+library(ggplot2)
+library(ggridges)
+library(StAMPP)
+library(stringr)
 library(pegas)
 library(vcfR)
 library(dartR)
@@ -296,4 +300,189 @@ return_miss_loc <- function(vcf, filt){
   q<-names(q[q >= filt])
   q
 }
-
+run_structure_analysis <- function(directory, k, pop_list,simulation,useclumpp){
+  clumppExport <- function(qlist=NULL,prefix=NA,parammode=NA,paramrep=NA,useexe=FALSE,dir_name)
+  {
+    # check input
+    is.qlist(qlist)
+    
+    if(is.na(prefix)) prefix <- "pop"
+    prefix <- paste0(prefix,"_K")
+    if(!is.logical(useexe)) stop("clumppExport: Argument 'useexe' set incorrectly. Set as TRUE or FALSE.")
+    
+    # get tabulated runs
+    df1 <- pophelper::tabulateQ(qlist)
+    df2 <- pophelper::summariseQ(df1)
+    df1l <- as.list(df1)
+    df2l <- as.list(df2)
+    
+    if(is.null(names(qlist))) names(qlist) <- paste0("sample",1:length(qlist))
+    
+    # k val duplicated
+    if(any(duplicated(df2l$k))) stop("clumppExport: Repeating values of K found.")
+    # do ind vary?
+    if(!all(df2l$ind[1]==df2l$ind)) warning("clumppExport: Number of individuals vary between runs.")
+    
+    e <- 1
+    p <- 1
+    len1 <- length(df2l$k)
+    while (e <= len1)
+    {
+      k <- df2l$k[e]
+      ind <- df2l$ind[e]
+      runs <- df2l$runs[e]
+      
+      ldata <- vector("list",length=runs)
+      for (f in 1:runs)
+      {
+        sel <- which(names(qlist)==as.character(df1l$file[p]))
+        dframe1 <- qlist[[sel]]
+        
+        # generate df
+        dframe3 <- as.matrix(data.frame(V1=paste0(1:ind,":"),dframe1,last=as.character(rep(1,ind)),stringsAsFactors=FALSE))
+        
+        # add dataframes to list
+        ldata[[f]] <- dframe3
+        rm(dframe3)
+        p=p+1
+      }
+      
+      if(runs > 1 && k > 1)
+      {
+        currwd <- getwd()
+        if(as.numeric(file.access(currwd,2))==-1) stop(paste0("clumppExport: Directory ",currwd," has no write permission."))
+        
+        dir.create(paste0(currwd,"/",dir_name))
+        setwd(paste0(currwd,"/",dir_name))
+        cat(paste0("Folder created: ",basename(getwd()),"\n"))  
+        out <- paste0(prefix,k,"-combined.txt")
+        
+        ## file output block
+        
+        # make 2 line space
+        spacer <- matrix(rep("  ",(k+2)*2),nrow=2)
+        
+        # write file
+        write(t(format(ldata[[1]],nsmall=15)),paste(out),ncolumns=k+2)
+        for (i in 2:length(ldata))
+        {
+          write(t(spacer),paste(out),ncolumns=k+2,append=TRUE)
+          write(t(format(ldata[[i]],nsmall=15)),append=TRUE,paste(out),ncolumns=k+2)
+        }
+        cat(paste0(out),"exported.\n")
+        
+        ## paramfile section
+        T1 <- factorial(k)*((length(ldata)*(length(ldata)-1))/2)*k*ind
+        if(T1 <= 100000000)
+        {
+          if(is.na(parammode)) parammode <- 2
+          if(is.na(paramrep)) paramrep <- 20
+        }else{
+          if(is.na(parammode)) parammode <- 3
+          if(is.na(paramrep)) paramrep <- 500
+        }
+        out1 <- base::gsub(".txt","",out)
+        params <- c("DATATYPE 1 ",
+                    "INDFILE NOTNEEDED.indfile ",
+                    paste0("POPFILE ",out," "),
+                    paste0("OUTFILE ",out1,"-merged.txt "),
+                    paste0("MISCFILE ",out1,"-miscfile.txt "),
+                    paste0("K ",k," "),
+                    paste0("C ",ind," "),
+                    paste0("R ",length(ldata)," "),
+                    paste0("M ",parammode," "),
+                    "W 0 ",
+                    "S 2 ",
+                    "GREEDY_OPTION 2 ",
+                    paste0("REPEATS ",paramrep," "),
+                    "PERMUTATIONFILE NOTNEEDED.permutationfile ",
+                    "PRINT_PERMUTED_DATA 1 ",
+                    paste0("PERMUTED_DATAFILE ",out1,"-aligned.txt "),
+                    "PRINT_EVERY_PERM 0 ",
+                    paste0("EVERY_PERMFILE ",out1,".every_permfile "),
+                    "PRINT_RANDOM_INPUTORDER 0 ",
+                    paste0("RANDOM_INPUTORDERFILE ",out1,".random_inputorderfile "),
+                    "OVERRIDE_WARNINGS 0 ",
+                    "ORDER_BY_RUN 0 ")
+        
+        write(params,"paramfile")
+        cat(paste0("paramfile exported.\n"))
+        
+        # autorun clumpp executable
+        if(useexe)
+        {
+          # identify OS
+          sysos <- "unix64"
+          if(sysos=="unix64")
+          {
+            #file.copy(system.file("/bin/CLUMPP",package="pophelper"),".")
+            #system("chmod 777 CLUMPP")
+            system("CLUMPP")
+            #unlink("CLUMPP",force=TRUE)
+          }
+          
+          # if OS is unidentified, give error
+          if(sysos=="unknown") warning("clumppExport: CLUMPP executable not run because system cannot be identified as windows, mac or linux.")
+        }
+        
+        setwd(paste(currwd))
+        cat("-----------------------\n")
+      }else
+      {
+        if(k==1) message(paste0(prefix,k," not exported. K less than 2.\n"))
+        if(runs < 2) message(paste0(prefix,k," not exported. Repeats less than 2.\n"))
+        cat("-----------------------\n")
+      }
+      e <- e + 1
+    }
+    
+    cat("Run completed.\n")
+  }
+  read_structure <- function(file, nind,k){
+    x<-read.delim(file,
+                  skip=(49+(k*3)),head=F)
+    x<-x$V1[1:nind]
+    library(stringr)
+    x<-gsub("\\s+", " ", str_trim(x))
+    x <- data.frame(do.call(rbind, strsplit(x, " ", fixed=TRUE)))
+    x<-x[c(5:(4+k))]
+  }
+  filt<-c("nohwe","out_across","out_all","out_any")
+  library("pophelper")
+  for(i in 1:4){
+    files<-paste0(directory,
+                  list.files(pattern="*_f",path = directory))
+    files<-files[grepl(paste0("*",filt[i],"*"),files)]
+    files<-files[grepl(paste0("*K",k),files)]
+    slist <-readQ(files=files)
+    files<-slist
+    if(useclumpp == TRUE){
+      
+      clumppExport(slist,useexe = T,dir_name = paste0("K",k,"_",filt[i],simulation))}}
+  col_pal<-brewer.pal(k,"Paired")
+  files<-vector()
+  for ( i in 1:4){
+    files[i]<-list.files(pattern = "*merged.txt",path=paste0("K",k,"_",filt[i],simulation))
+    files[i]<-paste0(paste0("K",k,"_",filt[i],simulation,"/",files[i]))
+  }
+  
+  slist <-readQ(files=files)
+  names(slist)<-paste0("low_PS",filt)
+  clumppExport(slist,useexe = T,dir_name = "clumpped_filtered",)
+  clumpped_dat<-read.table("./clumpped_filtered/pop_K6-combined-aligned.txt")
+  clumpped_dat<-clumpped_dat[,2:7]
+  clumpped_dat_sep <- list()
+  clumpped_dat_sep$hwe_out_across<-clumpped_dat[1:180,]
+  clumpped_dat_sep$hwe_out_all<-clumpped_dat[181:360,]
+  clumpped_dat_sep$hwe_out_any<-clumpped_dat[361:540,]
+  clumpped_dat_sep$nofilt<-clumpped_dat[541:720,]
+  
+  admix_plot<-function(clump_align_tab,nrep,nind,k,axis,col_pal,name){
+    line_locs<-c(30,60,90,120,150)
+    z<-clump_align_tab
+    barplot(t(z),col=col_pal,xlab="Admixture Proportions",ylab=NULL,
+            space= 0,border=NA,axisnames = axis,horiz=T, main = name,
+            cex.axis = 1.2, cex.names = 1.2,cex.lab=1.2,cex.main=1.5);abline(h=line_locs)
+  }
+  clumpped_dat_sep
+}
