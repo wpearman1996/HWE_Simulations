@@ -1,3 +1,4 @@
+setwd("/home/peawi142/HWE_Simulations/")
 read_struc_nucmat<-function(file){
   x<-readLines(file)
   x<-x[36:42]
@@ -458,7 +459,7 @@ run_structure_analysis <- function(directory, k, pop_list,simulation,useclumpp){
     files<-slist
     if(useclumpp == TRUE){
       
-      clumppExport(slist,useexe = T,dir_name = paste0("K",k,"_",filt[i],simulation))}}
+      clumppExport(slist,useexe = useclumpp,dir_name = paste0("K",k,"_",filt[i],simulation))}}
   col_pal<-brewer.pal(k,"Paired")
   files<-vector()
   for ( i in 1:4){
@@ -468,21 +469,13 @@ run_structure_analysis <- function(directory, k, pop_list,simulation,useclumpp){
   
   slist <-readQ(files=files)
   names(slist)<-paste0(simulation,filt)
-  clumppExport(slist,useexe = T,dir_name = "clumpped_filtered",)
+  clumppExport(slist,useexe = useclumpp,dir_name = "clumpped_filtered",)
   clumpped_dat<-read.table("./clumpped_filtered/pop_K6-combined-aligned.txt")
   clumpped_dat<-clumpped_dat[,2:7]
   clumpped_dat_sep <- list()
-  clumpped_dat_sep$hwe_out_across<-clumpped_dat[1:180,]
-  clumpped_dat_sep$hwe_out_all<-clumpped_dat[181:360,]
-  clumpped_dat_sep$hwe_out_any<-clumpped_dat[361:540,]
-  clumpped_dat_sep$nofilt<-clumpped_dat[541:720,]
-  
-  admix_plot<-function(clump_align_tab,nrep,nind,k,axis,col_pal,name){
-    line_locs<-c(30,60,90,120,150)
-    z<-clump_align_tab
-    barplot(t(z),col=col_pal,xlab="Admixture Proportions",ylab=NULL,
-            space= 0,border=NA,axisnames = axis,horiz=T, main = name,
-            cex.axis = 1.2, cex.names = 1.2,cex.lab=1.2,cex.main=1.5);abline(h=line_locs)
-  }
+  clumpped_dat_sep$nofilt<-clumpped_dat[1:180,]
+  clumpped_dat_sep$out_across<-clumpped_dat[181:360,]
+  clumpped_dat_sep$out_all<-clumpped_dat[361:540,]
+  clumpped_dat_sep$out_any<-clumpped_dat[541:720,]
   clumpped_dat_sep
 }
