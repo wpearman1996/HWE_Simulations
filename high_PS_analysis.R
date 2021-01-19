@@ -157,3 +157,28 @@ plot_grid(high_fst_means, high_fst_stand_truth,
           high_fst_truefst, labels = c('InfFst_Means high PS', 'Fst_Standardized to Truth',
                                                        'PCst vs InfFst', 'PCst vs InfFst Zoomed','PCst',
                                                        'PCst zoomed','PCst vs TrueFst', 'Fst vs TrueFst'))
+
+####### STRUCTURE
+setwd("./structure_output/")
+files<-list.files(pattern="*out_f")
+struc_mats<-lapply(files,read_struc_nucmat)
+struc_mats<-do.call("rbind",struc_mats)
+struc_mats<-data.frame(struc_mats,files)
+struc_mats$filter<-ifelse(grepl("nohwe",struc_mats$files),"No Filter",
+                          ifelse(grepl("out_any",struc_mats$files),"HWE Out Any",
+                                 ifelse(grepl("out_across",struc_mats$files),
+                                        "HWE Out Across", "HWE Out All"))) 
+
+high_struc_nucdist <- ggplot(struc_mats,aes(x=struc_mats,y=filter))+ geom_density_ridges(quantile_lines=TRUE, quantile_fun=function(x,...)median(x)) + theme_minimal() +
+  xlab("Nuc Dist") + ggtitle("Structure high Average Nuc Dist")
+high_struc_nucdist
+library(cowplot)
+plot_grid(high_struc_nucdist,marg_struc_nucdist,low_struc_nucdist,nrow=1)
+clummped_high_dat <- run_structure_analysis("./", k=6, pop_list=pop_list,
+                                            simulation="high_PS",useclumpp=T)
+dev.off();par(mfrow=c(1,4))
+out_across<-admix_plot(clummped_high_dat$out_across,10,180,6,F,brewer.pal(k,"Paired"),"Out Across")
+out_any<-admix_plot(clummped_high_dat$out_any,10,180,6,F,brewer.pal(k,"Paired"),"Out Any")
+out_all<-admix_plot(clummped_high_dat$out_all,10,180,6,F,brewer.pal(k,"Paired"),"Out All")
+nofilt<-admix_plot(clummped_high_dat$nofilt,10,180,6,F,brewer.pal(k,"Paired"),"No Filt")
+
