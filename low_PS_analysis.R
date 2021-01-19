@@ -171,7 +171,7 @@ struc_mats$filter<-ifelse(grepl("nohwe",struc_mats$files),"No Filter",
                                         "HWE Out Across", "HWE Out All"))) 
 
 low_struc_nucdist <- ggplot(struc_mats,aes(x=struc_mats,y=filter))+ geom_density_ridges() + theme_minimal() +
-  xlab("Inferred Fst") + ggtitle("Structure low Average Nuc Dist")
+  xlab("Nuc Fst") + ggtitle("Structure low Average Nuc Dist")
 low_struc_nucdist
 library(cowplot)
 plot_grid(low_struc_nucdist,marg_struc_nucdist)

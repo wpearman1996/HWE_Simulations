@@ -467,7 +467,7 @@ run_structure_analysis <- function(directory, k, pop_list,simulation,useclumpp){
   }
   
   slist <-readQ(files=files)
-  names(slist)<-paste0("low_PS",filt)
+  names(slist)<-paste0(simulation,filt)
   clumppExport(slist,useexe = T,dir_name = "clumpped_filtered",)
   clumpped_dat<-read.table("./clumpped_filtered/pop_K6-combined-aligned.txt")
   clumpped_dat<-clumpped_dat[,2:7]
