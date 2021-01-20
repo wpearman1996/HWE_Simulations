@@ -37,6 +37,9 @@ pcst_highPS$Filter<-ifelse(pcst_highPS$Filter=="nohwe","No Filt",
                                      ifelse(pcst_highPS$Filter=="hwe_out_all","HWE Out All","HWE Out Across")))
 ggplot(pcst_highPS,aes(x=V1,y=Filter))+ geom_density_ridges() + theme_minimal() + ggtitle("high_PS_PCA_PCst") +
   xlab("PCst")
+ggplot(pcst_highPS,aes(x=V1,y=Filter)) + theme_minimal() + ggtitle("marg_PS_PCA_PCst") +
+  xlab("PCst") + stat_density_ridges(bandwidth=0.1)
+
 ggplot(pcst_highPS[pcst_highPS$Filter!="HWE Out Across",],aes(x=V1,y=Filter))+ geom_density_ridges() + theme_minimal() + ggtitle("high_PS_PCA_PCst") +
   xlab("PCst")
 t.test(pcst_highPS$V1[pcst_highPS$Filter=="HWE Out All"],

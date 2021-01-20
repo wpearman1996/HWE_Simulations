@@ -39,7 +39,7 @@ ggplot(pcst_margPS,aes(x=V1,y=Filter))+ geom_density_ridges() + theme_minimal() 
   xlab("PCst")
 ggplot(pcst_margPS[pcst_margPS$Filter!="HWE Out Across",],aes(x=V1,y=Filter))+ geom_density_ridges() + theme_minimal() + ggtitle("marg_PS_PCA_PCst") +
   xlab("PCst")
-t.test(pcst_margPS$V1[pcst_margPS$Filter=="HWE Out All"],
+t.test(pcst_margPS$V1[pcst_marg +PS$Filter=="HWE Out All"],
        pcst_margPS$V1[pcst_margPS$Filter=="No Filt"],alternative = "greater")
 ggplot(pcst_margPS, aes(x=V1, y=Filter)) + 
   geom_boxplot(color="black")+
