@@ -37,6 +37,8 @@ pcst_extremePS$Filter<-ifelse(pcst_extremePS$Filter=="nohwe","No Filt",
                                        ifelse(pcst_extremePS$Filter=="hwe_out_all","HWE Out All","HWE Out Across")))
 ggplot(pcst_extremePS,aes(x=V1,y=Filter))+ geom_density_ridges() + theme_minimal() + ggtitle("extreme_PS_PCA_PCst") +
   xlab("PCst")
+ggplot(pcst_extremePS,aes(x=V1,y=Filter)) + theme_minimal() + ggtitle("extreme_PS_PCA_PCst") +
+  xlab("PCst") + stat_density_ridges(bandwidth=0.003)
 ggplot(pcst_extremePS[pcst_extremePS$Filter!="HWE Out Across",],aes(x=V1,y=Filter))+ geom_density_ridges() + theme_minimal() + ggtitle("extreme_PS_PCA_PCst") +
   xlab("PCst")
 t.test(pcst_extremePS$V1[pcst_extremePS$Filter=="HWE Out All"],
@@ -97,17 +99,17 @@ file_gl_fst$pop<-as.factor(c(rep("p1",30),rep("p2",30),
 fst_matrix<-stamppFst(file_gl_fst,nboots = 0)
 fst_matrix
 }
-extremes<-list.files(path="../rerun_christmas/")
-extremes<-extremes[grepl("extreme",extremes)]
-extremes<-extremes[grepl(".vcf",extremes)]
-extremes<-paste0("../rerun_christmas/",extremes)
-truefsts<-lapply(extremes,calc_fst_true)
-names(truefsts)<-word(extremes,4,sep="_")
-truefsts_extreme<-truefsts
-truefstsx<-lapply(truefsts_extreme,function(x){mean(as.matrix(x[2:7]),na.rm=T)})
-truefstsx<-do.call("rbind",truefstsx)
-truefstsx<-data.frame(truefstsx)
-truefstsx$seed<-rownames(truefstsx)
+#extremes<-list.files(path="../rerun_christmas/")
+#extremes<-extremes[grepl("extreme",extremes)]
+#extremes<-extremes[grepl(".vcf",extremes)]
+#extremes<-paste0("../rerun_christmas/",extremes)
+#truefsts<-lapply(extremes,calc_fst_true)
+#names(truefsts)<-word(extremes,4,sep="_")
+#truefsts_extreme<-truefsts
+#truefstsx<-lapply(truefsts_extreme,function(x){mean(as.matrix(x[2:7]),na.rm=T)})
+#truefstsx<-do.call("rbind",truefstsx)
+#truefstsx<-data.frame(truefstsx)
+#truefstsx$seed<-rownames(truefstsx)
 a<-unique(a)
 b<-data.frame(b)
 colnames(b)<-"InferredFst"
@@ -116,8 +118,8 @@ b$Seed<-word(b$Name,3,sep="_")
 b$Filt<-word(b$Name,5,6,sep="_")
 b$Filt<-ifelse(b$Filt=="out_across","HWE Out Across",ifelse(b$Filt=="out_any","HWE Out Any",
                                                             ifelse(b$Filt=="out_all","HWE Out All", "No HWE")))
-b$TrueFst<-truefstsx$truefstsx[match(b$Seed,truefstsx$seed)]
-b$Stat <- b$TrueFst-b$InferredFst
+#b$TrueFst<-truefstsx$truefstsx[match(b$Seed,truefstsx$seed)]
+#b$Stat <- b$TrueFst-b$InferredFst
 ggplot(b,aes(x=Stat,y=Filt))+ geom_density_ridges() + theme_minimal() + ggtitle("extreme_PS_PCA_PCst") +
   xlab("TrueFst-InfFst")
 b$FileName<-names(fst_simulations_dat)
@@ -126,15 +128,15 @@ b$FileName<-word(b$FileName,1,2,sep="[.]")
 pcst_extremePS$FileNames<-rownames(pcst_extremePS)
 pcst_extremePS$FileNames<-word(pcst_extremePS$FileNames,1,2,sep="[.]")
 pcst_extremePS$Fst<-b$InferredFst[match(pcst_extremePS$FileNames,b$FileName)]
-pcst_extremePS$TrueFst<-b$TrueFst[match(pcst_extremePS$FileNames,b$FileName)]
+#pcst_extremePS$TrueFst<-b$TrueFst[match(pcst_extremePS$FileNames,b$FileName)]
 
 dev.off()
 ggplot(pcst_extremePS,aes(x=V1,y=Fst,col=Filter)) + geom_point()
 library(cowplot)
 extreme_fst_means <- ggplot(b,aes(x=InferredFst,y=Filt))+ geom_density_ridges() + theme_minimal() +
   xlab("Inferred Fst")
-extreme_fst_stand_truth <- ggplot(b,aes(x=Stat,y=Filt))+ geom_density_ridges() + theme_minimal() +
-  xlab("Inferred Fst")
+#extreme_fst_stand_truth <- ggplot(b,aes(x=Stat,y=Filt))+ geom_density_ridges() + theme_minimal() +
+#  xlab("Inferred Fst")
 extreme_pcst_fst <- ggplot(pcst_extremePS,aes(x=V1,y=Fst,col=Filter)) + geom_point() + geom_smooth(method = 'loess') +
   xlab("PCst")
 extreme_pcst_fst_noacross <- ggplot(pcst_extremePS[pcst_extremePS$Filter!="HWE Out Across",],aes(x=V1,y=Fst,col=Filter)) +
@@ -143,17 +145,46 @@ extreme_pcst_all <- ggplot(pcst_extremePS,aes(x=V1,y=Filter))+ geom_density_ridg
   xlab("PCst")
 extreme_pcst_noacross <- ggplot(pcst_extremePS[pcst_extremePS$Filter!="HWE Out Across",],aes(x=V1,y=Filter))+ geom_density_ridges() + theme_minimal() +
   xlab("PCst")
-extreme_pcst_truefst <- ggplot(pcst_extremePS,aes(x=V1,y=TrueFst,col=Filter)) + geom_point() + geom_smooth(method = 'loess') +
-  xlab("PCst")
-extreme_pcst_truefst_noacross <- ggplot(pcst_extremePS[pcst_extremePS$Filter!="HWE Out Across",],aes(x=V1,y=TrueFst,col=Filter)) +
-  geom_point() + geom_smooth(method = 'loess') + xlab("PCst")
-extreme_fst_truefst_noacross <- ggplot(pcst_extremePS[pcst_extremePS$Filter!="HWE Out Across",],aes(x=Fst,y=TrueFst,col=Filter)) +
-  geom_point() + geom_smooth(method = 'loess')
-extreme_fst_truefst <- ggplot(pcst_extremePS,aes(x=Fst,y=TrueFst,col=Filter)) + geom_point() + geom_smooth(method = 'loess')
+#extreme_pcst_truefst <- ggplot(pcst_extremePS,aes(x=V1,y=TrueFst,col=Filter)) + geom_point() + geom_smooth(method = 'loess') +
+#  xlab("PCst")
+#extreme_pcst_truefst_noacross <- ggplot(pcst_extremePS[pcst_extremePS$Filter!="HWE Out Across",],aes(x=V1,y=TrueFst,col=Filter)) +
+#  geom_point() + geom_smooth(method = 'loess') + xlab("PCst")
+#extreme_fst_truefst_noacross <- ggplot(pcst_extremePS[pcst_extremePS$Filter!="HWE Out Across",],aes(x=Fst,y=TrueFst,col=Filter)) +
+#  geom_point() + geom_smooth(method = 'loess')
+#extreme_fst_truefst <- ggplot(pcst_extremePS,aes(x=Fst,y=TrueFst,col=Filter)) + geom_point() + geom_smooth(method = 'loess')
 
-plot_grid(extreme_fst_means, extreme_fst_stand_truth,
-          extreme_pcst_fst,extreme_pcst_fst_noacross,
-          extreme_pcst_all,extreme_pcst_noacross,extreme_pcst_truefst,
-          extreme_fst_truefst, labels = c('InfFst_Means extreme PS', 'Fst_Standardized to Truth',
-                                       'PCst vs InfFst', 'PCst vs InfFst Zoomed','PCst',
-                                       'PCst zoomed','PCst vs TrueFst', 'Fst vs TrueFst'))
+#plot_grid(extreme_fst_means, extreme_fst_stand_truth,
+#          extreme_pcst_fst,extreme_pcst_fst_noacross,
+#          extreme_pcst_all,extreme_pcst_noacross,extreme_pcst_truefst,
+#          extreme_fst_truefst, labels = c('InfFst_Means extreme PS', 'Fst_Standardized to Truth',
+#                                       'PCst vs InfFst', 'PCst vs InfFst Zoomed','PCst',
+#                                       'PCst zoomed','PCst vs TrueFst', 'Fst vs TrueFst'))
+
+####### STRUCTURE
+setwd("./structure_output/")
+files<-list.files(pattern="*out_f")
+struc_mats<-lapply(files,read_struc_nucmat)
+struc_mats<-do.call("rbind",struc_mats)
+struc_mats<-data.frame(struc_mats,files)
+struc_mats$filter<-ifelse(grepl("nohwe",struc_mats$files),"No Filter",
+                          ifelse(grepl("out_any",struc_mats$files),"HWE Out Any",
+                                 ifelse(grepl("out_across",struc_mats$files),
+                                        "HWE Out Across", "HWE Out All"))) 
+
+extreme_struc_nucdist <- ggplot(struc_mats,aes(x=struc_mats,y=filter)) + geom_density_ridges(quantile_lines=TRUE, quantile_fun=function(x,...)median(x)) + theme_minimal() +
+  xlab("Nuc Dist") + ggtitle("Structure extreme Average Nuc Dist")
+extreme_struc_nucdist
+library(cowplot)
+plot_grid(extreme_struc_nucdist,extreme_struc_nucdist)
+clummped_extreme_dat <- run_structure_analysis("./", k=6, pop_list=pop_list,
+                                            simulation="extreme_PS",useclumpp=T)
+dev.off();par(mfrow=c(1,4))
+out_across<-admix_plot(clummped_extreme_dat$hwe_out_across,10,180,6,F,brewer.pal(k,"Paired"),"Out Across")
+out_any<-admix_plot(clummped_extreme_dat$hwe_out_any,10,180,6,F,brewer.pal(k,"Paired"),"Out Any")
+out_all<-admix_plot(clummped_extreme_dat$hwe_out_all,10,180,6,F,brewer.pal(k,"Paired"),"Out All")
+nofilt<-admix_plot(clummped_extreme_dat$nofilt,10,180,6,F,brewer.pal(k,"Paired"),"No Filt")
+
+plot_grid(extreme_fst_means, extreme_pcst_fst,extreme_pcst_fst_noacross,
+          extreme_pcst_all,extreme_pcst_noacross,extreme_struc_nucdist
+          , labels = c('InfFst_Means extreme PS','PCst vs InfFst', 'PCst vs InfFst Zoomed','PCst',
+                                          'PCst zoomed', 'Structure Nuc Dist'))

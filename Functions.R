@@ -23,22 +23,13 @@ library(vcfR)
 library(dartR)
 library(RColorBrewer)
 library(pophelper)
-admix_plot<-function(clump_align_tab,nrep,nind,title){
+admix_plot<-function(clump_align_tab,nrep,nind,k,axis,col_pal,name){
   line_locs<-c(30,60,90,120,150)
-  clump_align_tab$V1<-NULL
-  clump_align_tab[,ncol(clump_align_tab)]<-NULL
-  #x<-split(clump_align_tab,sort(rep(seq(1:nrep),nind)))
-  #x<-lapply(x,as.matrix)
-  #z<-Reduce("+", x) / length(x)
   z<-clump_align_tab
-  #col_pal<-col+pal
-  col_pal<-brewer.pal(6,"Paired")
-  #cols<-col_pal#[1:ncol(z)]
   barplot(t(z),col=col_pal,xlab="Admixture Proportions",ylab=NULL,
-          space= 0,border=NA,axisnames = F,horiz=T, main = title,
+          space= 0,border=NA,axisnames = axis,horiz=T, main = name,
           cex.axis = 1.2, cex.names = 1.2,cex.lab=1.2,cex.main=1.5);abline(h=line_locs)
 }
-
 clumppExport <- function(qlist=NULL,prefix=NA,parammode=NA,paramrep=NA,useexe=FALSE,dir_name)
 {
   # check input

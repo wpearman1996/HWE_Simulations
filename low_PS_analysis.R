@@ -37,6 +37,8 @@ pcst_lowPS$Filter<-ifelse(pcst_lowPS$Filter=="nohwe","No Filt",
                                   ifelse(pcst_lowPS$Filter=="hwe_out_all","HWE Out All","HWE Out Across")))
 ggplot(pcst_lowPS,aes(x=V1,y=Filter))+ geom_density_ridges() + theme_minimal() + ggtitle("low_PS_PCA_PCst") +
   xlab("PCst")
+ggplot(pcst_lowPS,aes(x=V1,y=Filter)) + theme_minimal() + ggtitle("low_PS_PCA_PCst") +
+  xlab("PCst") + stat_density_ridges(bandwidth=0.003)
 ggplot(pcst_lowPS[pcst_lowPS$Filter!="HWE Out Across",],aes(x=V1,y=Filter))+ geom_density_ridges() + theme_minimal() + ggtitle("low_PS_PCA_PCst") +
   xlab("PCst")
 t.test(pcst_lowPS$V1[pcst_lowPS$Filter=="HWE Out All"],
@@ -97,17 +99,17 @@ calc_fst_true<-function(vcf){
   fst_matrix<-stamppFst(file_gl_fst,nboots = 0)
   fst_matrix
 }
-lows<-list.files(path="../rerun_christmas/")
-lows<-lows[grepl("low",lows)]
-lows<-lows[grepl(".vcf",lows)]
-lows<-paste0("../rerun_christmas/",lows)
-truefsts<-lapply(lows,calc_fst_true)
-names(truefsts)<-word(lows,4,sep="_")
-truefsts_low<-truefsts
-truefstsx<-lapply(truefsts_low,function(x){mean(as.matrix(x[2:7]),na.rm=T)})
-truefstsx<-do.call("rbind",truefstsx)
-truefstsx<-data.frame(truefstsx)
-truefstsx$seed<-rownames(truefstsx)
+#lows<-list.files(path="../rerun_christmas/")
+#lows<-lows[grepl("low",lows)]
+#lows<-lows[grepl(".vcf",lows)]
+#lows<-paste0("../rerun_christmas/",lows)
+#truefsts<-lapply(lows,calc_fst_true)
+#names(truefsts)<-word(lows,4,sep="_")
+#truefsts_low<-truefsts
+#truefstsx<-lapply(truefsts_low,function(x){mean(as.matrix(x[2:7]),na.rm=T)})
+#truefstsx<-do.call("rbind",truefstsx)
+#truefstsx<-data.frame(truefstsx)
+#truefstsx$seed<-rownames(truefstsx)
 a<-unique(a)
 b<-data.frame(b)
 colnames(b)<-"InferredFst"
@@ -116,25 +118,25 @@ b$Seed<-word(b$Name,3,sep="_")
 b$Filt<-word(b$Name,5,6,sep="_")
 b$Filt<-ifelse(b$Filt=="out_across","HWE Out Across",ifelse(b$Filt=="out_any","HWE Out Any",
                                                             ifelse(b$Filt=="out_all","HWE Out All", "No HWE")))
-b$TrueFst<-truefstsx$truefstsx[match(b$Seed,truefstsx$seed)]
-b$Stat <- b$TrueFst-b$InferredFst
-ggplot(b,aes(x=Stat,y=Filt))+ geom_density_ridges() + theme_minimal() + ggtitle("low_PS_PCA_PCst") +
-  xlab("TrueFst-InfFst")
+#b$TrueFst<-truefstsx$truefstsx[match(b$Seed,truefstsx$seed)]
+#b$Stat <- b$TrueFst-b$InferredFst
+#ggplot(b,aes(x=Stat,y=Filt))+ geom_density_ridges() + theme_minimal() + ggtitle("low_PS_PCA_PCst") +
+#  xlab("TrueFst-InfFst")
 b$FileName<-names(fst_simulations_dat)
 b$FileName<-word(b$FileName,1,2,sep="[.]")
 
 pcst_lowPS$FileNames<-rownames(pcst_lowPS)
 pcst_lowPS$FileNames<-word(pcst_lowPS$FileNames,1,2,sep="[.]")
 pcst_lowPS$Fst<-b$InferredFst[match(pcst_lowPS$FileNames,b$FileName)]
-pcst_lowPS$TrueFst<-b$TrueFst[match(pcst_lowPS$FileNames,b$FileName)]
+#pcst_lowPS$TrueFst<-b$TrueFst[match(pcst_lowPS$FileNames,b$FileName)]
 
 dev.off()
 ggplot(pcst_lowPS,aes(x=V1,y=Fst,col=Filter)) + geom_point()
 library(cowplot)
 low_fst_means <- ggplot(b,aes(x=InferredFst,y=Filt))+ geom_density_ridges() + theme_minimal() +
   xlab("Inferred Fst")
-low_fst_stand_truth <- ggplot(b,aes(x=Stat,y=Filt))+ geom_density_ridges() + theme_minimal() +
-  xlab("Inferred Fst")
+#low_fst_stand_truth <- ggplot(b,aes(x=Stat,y=Filt))+ geom_density_ridges() + theme_minimal() +
+#  xlab("Inferred Fst")
 low_pcst_fst <- ggplot(pcst_lowPS,aes(x=V1,y=Fst,col=Filter)) + geom_point() + geom_smooth(method = 'loess') +
   xlab("PCst")
 low_pcst_fst_noacross <- ggplot(pcst_lowPS[pcst_lowPS$Filter!="HWE Out Across",],aes(x=V1,y=Fst,col=Filter)) +
@@ -143,21 +145,20 @@ low_pcst_all <- ggplot(pcst_lowPS,aes(x=V1,y=Filter))+ geom_density_ridges() + t
   xlab("PCst")
 low_pcst_noacross <- ggplot(pcst_lowPS[pcst_lowPS$Filter!="HWE Out Across",],aes(x=V1,y=Filter))+ geom_density_ridges() + theme_minimal() +
   xlab("PCst")
-low_pcst_truefst <- ggplot(pcst_lowPS,aes(x=V1,y=TrueFst,col=Filter)) + geom_point() + geom_smooth(method = 'loess') +
-  xlab("PCst")
-low_pcst_truefst_noacross <- ggplot(pcst_lowPS[pcst_lowPS$Filter!="HWE Out Across",],aes(x=V1,y=TrueFst,col=Filter)) +
-  geom_point() + geom_smooth(method = 'loess') + xlab("PCst")
-low_fst_truefst_noacross <- ggplot(pcst_lowPS[pcst_lowPS$Filter!="HWE Out Across",],aes(x=Fst,y=TrueFst,col=Filter)) +
-  geom_point() + geom_smooth(method = 'loess')
-low_fst_truefst <- ggplot(pcst_lowPS,aes(x=Fst,y=TrueFst,col=Filter)) + geom_point() + geom_smooth(method = 'loess')
+#low_pcst_truefst <- ggplot(pcst_lowPS,aes(x=V1,y=TrueFst,col=Filter)) + geom_point() + geom_smooth(method = 'loess') +
+#  xlab("PCst")
+#low_pcst_truefst_noacross <- ggplot(pcst_lowPS[pcst_lowPS$Filter!="HWE Out Across",],aes(x=V1,y=TrueFst,col=Filter)) +
+#  geom_point() + geom_smooth(method = 'loess') + xlab("PCst")
+#low_fst_truefst_noacross <- ggplot(pcst_lowPS[pcst_lowPS$Filter!="HWE Out Across",],aes(x=Fst,y=TrueFst,col=Filter)) +
+#  geom_point() + geom_smooth(method = 'loess')
+#low_fst_truefst <- ggplot(pcst_lowPS,aes(x=Fst,y=TrueFst,col=Filter)) + geom_point() + geom_smooth(method = 'loess')
 
-plot_grid(low_fst_means, low_fst_stand_truth,
-          low_pcst_fst,low_pcst_fst_noacross,
-          low_pcst_all,low_pcst_noacross,low_pcst_truefst,
-          low_fst_truefst, labels = c('InfFst_Means low PS', 'Fst_Standardized to Truth',
-                                       'PCst vs InfFst', 'PCst vs InfFst Zoomed','PCst',
-                                       'PCst zoomed','PCst vs TrueFst', 'Fst vs TrueFst'))
-
+#plot_grid(low_fst_means, low_fst_stand_truth,
+#          low_pcst_fst,low_pcst_fst_noacross,
+#          low_pcst_all,low_pcst_noacross,low_pcst_truefst,
+#          low_fst_truefst, labels = c('InfFst_Means low PS', 'Fst_Standardized to Truth',
+#                                       'PCst vs InfFst', 'PCst vs InfFst Zoomed','PCst',
+#                                       'PCst zoomed','PCst vs TrueFst', 'Fst vs TrueFst'))
 
 ####### STRUCTURE
 setwd("./structure_output/")
@@ -170,15 +171,20 @@ struc_mats$filter<-ifelse(grepl("nohwe",struc_mats$files),"No Filter",
                                  ifelse(grepl("out_across",struc_mats$files),
                                         "HWE Out Across", "HWE Out All"))) 
 
-low_struc_nucdist <- ggplot(struc_mats,aes(x=struc_mats,y=filter))+ geom_density_ridges(quantile_lines=TRUE, quantile_fun=function(x,...)median(x))+ theme_minimal() +
-  xlab("Nuc Fst") + ggtitle("Structure low Average Nuc Dist")
+low_struc_nucdist <- ggplot(struc_mats,aes(x=struc_mats,y=filter)) + geom_density_ridges(quantile_lines=TRUE, quantile_fun=function(x,...)median(x)) + theme_minimal() +
+  xlab("Nuc Dist") + ggtitle("Structure low Average Nuc Dist")
 low_struc_nucdist
 library(cowplot)
-plot_grid(low_struc_nucdist,marg_struc_nucdist)
-clummped_low_dat <- run_structure_analysis("./structure_output/", k=6, pop_list=pop_list,
-                                           simulation="low_PS",useclumpp=T)
+plot_grid(low_struc_nucdist,low_struc_nucdist)
+clummped_low_dat <- run_structure_analysis("./", k=6, pop_list=pop_list,
+                                            simulation="low_PS",useclumpp=T)
 dev.off();par(mfrow=c(1,4))
-out_across<-admix_plot(clummped_low_dat$hwe_out_across,10,180,6,F,brewer.pal(k,"Paired"),"Out Across")
-out_any<-admix_plot(clummped_low_dat$hwe_out_any,10,180,6,F,brewer.pal(k,"Paired"),"Out Any")
-out_all<-admix_plot(clummped_low_dat$hwe_out_all,10,180,6,F,brewer.pal(k,"Paired"),"Out All")
-nofilt<-admix_plot(clummped_low_dat$nofilt,10,180,6,F,brewer.pal(k,"Paired"),"No Filt")
+out_across<-admix_plot(clummped_low_dat$out_across,10,180,6,F,brewer.pal(k,"Paired"),"Out Across")
+out_any<-admix_plot(clummped_low_dat$out_any,10,180,6,F,brewer.pal(k,"Paired"),"Out Any")
+out_all<-admix_plot(clummped_low_dat$out_all,10,180,6,F,brewer.pal(k,"Paired"),"Out All")
+nofilt<-admix_plot(clummped_low_dat$out_any,10,180,6,F,brewer.pal(k,"Paired"),"No Filt")
+
+plot_grid(low_fst_means, low_pcst_fst,low_pcst_fst_noacross,
+          low_pcst_all,low_pcst_noacross,low_struc_nucdist
+          , labels = c('InfFst_Means low PS','PCst vs InfFst', 'PCst vs InfFst Zoomed','PCst',
+                       'PCst zoomed', 'Structure Nuc Dist'))
