@@ -1,4 +1,5 @@
+library/
+lock/
+python/
+staging/
 .Rproj.user
-.Rhistory
-.RData
-.Ruserdata

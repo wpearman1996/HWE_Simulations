@@ -188,3 +188,4 @@ plot_grid(marg_fst_means, marg_pcst_fst,marg_pcst_fst_noacross,
           marg_pcst_all,marg_pcst_noacross,marg_struc_nucdist
           , labels = c('InfFst_Means marg PS','PCst vs InfFst', 'PCst vs InfFst Zoomed','PCst',
                        'PCst zoomed', 'Structure Nuc Dist'))
+ggplot(clummped_marg_dat)+geom_bar()
