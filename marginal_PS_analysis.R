@@ -179,10 +179,10 @@ plot_grid(marg_struc_nucdist,marg_struc_nucdist)
 clummped_marg_dat <- run_structure_analysis("./", k=6, pop_list=pop_list,
                                                simulation="marg_PS",useclumpp=T)
 dev.off();par(mfrow=c(1,4))
-out_across<-admix_plot(clummped_marg_dat$out_across,10,180,6,F,brewer.pal(k,"Paired"),"Out Across")
-out_any<-admix_plot(clummped_marg_dat$out_any,10,180,6,F,brewer.pal(k,"Paired"),"Out Any")
-out_all<-admix_plot(clummped_marg_dat$out_all,10,180,6,F,brewer.pal(k,"Paired"),"Out All")
-nofilt<-admix_plot(clummped_marg_dat$out_any,10,180,6,F,brewer.pal(k,"Paired"),"No Filt")
+out_across<-admix_plot(clummped_marg_dat$out_across,10,180,6,F,cbbPalette[c(1:5,7)],"Out Across")
+out_any<-admix_plot(clummped_marg_dat$out_any,10,180,6,F,cbbPalette[c(1:5,7)],"Out Any")
+out_all<-admix_plot(clummped_marg_dat$out_all,10,180,6,F,cbbPalette[c(1:5,7)],"Out All")
+nofilt<-admix_plot(clummped_marg_dat$out_any,10,180,6,F,cbbPalette[c(1:5,7)],"No Filt")
 
 plot_grid(marg_fst_means, marg_pcst_fst,marg_pcst_fst_noacross,
           marg_pcst_all,marg_pcst_noacross,marg_struc_nucdist

@@ -177,12 +177,38 @@ high_struc_nucdist
 library(cowplot)
 plot_grid(high_struc_nucdist,high_struc_nucdist)
 clummped_high_dat <- run_structure_analysis("./", k=6, pop_list=pop_list,
-                                            simulation="high_PS",useclumpp=T)
+                                            simulation="high_PS",useclumpp=F)
 dev.off();par(mfrow=c(1,4))
-out_across<-admix_plot(clummped_high_dat$out_across,10,180,6,F,brewer.pal(k,"Paired"),"Out Across")
-out_any<-admix_plot(clummped_high_dat$out_any,10,180,6,F,brewer.pal(k,"Paired"),"Out Any")
-out_all<-admix_plot(clummped_high_dat$out_all,10,180,6,F,brewer.pal(k,"Paired"),"Out All")
-nofilt<-admix_plot(clummped_high_dat$out_any,10,180,6,F,brewer.pal(k,"Paired"),"No Filt")
+out_across<-admix_plot(clummped_high_dat$out_across,10,180,6,F,cbbPalette[c(1:5,7)],"Out Across")
+out_any<-admix_plot(clummped_high_dat$out_any,10,180,6,F,cbbPalette[c(1:5,7)],"Out Any")
+out_all<-admix_plot(clummped_high_dat$out_all,10,180,6,F,cbbPalette[c(1:5,7)],"Out All")
+nofilt<-admix_plot(clummped_high_dat$out_any,10,180,6,F,cbbPalette[c(1:5,7)],"No Filt")
+clummped_high_dat_melt<-do.call("rbind",clummped_high_dat)
+clummped_high_dat_melt$Filter<-word(rownames(clummped_high_dat_melt),1,sep="[.]")
+meltq <- reshape::melt(clummped_high_dat_melt,id.vars=c("Filter"))
+meltq$IndName<-rep(1:180,4)
+meltq$Filter = factor(meltq$Filter, levels=c('nofilt','out_any','out_all','out_across'))
+
+Struc_plot_high<-ggplot(data=meltq,aes(x=IndName,y=value,fill=variable))+
+  facet_wrap(Filter~.,nrow=4,strip.position = NULL)+
+  ggtitle("  ")+
+  theme_classic()+theme(axis.text.y=element_blank(),
+                        axis.ticks=element_blank(),
+                        strip.background = element_blank(),
+                        axis.text.x=element_blank(),
+                        axis.text = element_blank(),
+                        strip.text.y.left = element_text(angle = 0),
+                        rect = element_blank(),axis.line.x = element_blank(),
+                        axis.line.y = element_blank(),
+                        legend.position = "none", strip.text.x = element_blank() )+
+  ylab("")+xlab("")+
+  scale_fill_manual(values = cbbPalette[c(1:5,7)])+
+  geom_bar(stat="identity",width=.9,col="black",lwd=0.1)
+Struc_plot_high
+high_struc_nucdist
+ggdraw()+
+  draw_plot(high_struc_nucdist,0,0,.4,1)+
+  draw_plot(Struc_plot_high,0.55,.075,0.65,.8,hjust = .3,vjust = -.1)
 
 plot_grid(high_fst_means, high_pcst_fst,high_pcst_fst_noacross,
           high_pcst_all,high_pcst_noacross,high_struc_nucdist

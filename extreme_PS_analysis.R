@@ -179,10 +179,10 @@ plot_grid(extreme_struc_nucdist,extreme_struc_nucdist)
 clummped_extreme_dat <- run_structure_analysis("./", k=6, pop_list=pop_list,
                                             simulation="extreme_PS",useclumpp=T)
 dev.off();par(mfrow=c(1,4))
-out_across<-admix_plot(clummped_extreme_dat$hwe_out_across,10,180,6,F,brewer.pal(k,"Paired"),"Out Across")
-out_any<-admix_plot(clummped_extreme_dat$hwe_out_any,10,180,6,F,brewer.pal(k,"Paired"),"Out Any")
-out_all<-admix_plot(clummped_extreme_dat$hwe_out_all,10,180,6,F,brewer.pal(k,"Paired"),"Out All")
-nofilt<-admix_plot(clummped_extreme_dat$nofilt,10,180,6,F,brewer.pal(k,"Paired"),"No Filt")
+out_across<-admix_plot(clummped_extreme_dat$hwe_out_across,10,180,6,F,cbbPalette[c(1:5,7)],"Out Across")
+out_any<-admix_plot(clummped_extreme_dat$hwe_out_any,10,180,6,F,cbbPalette[c(1:5,7)],"Out Any")
+out_all<-admix_plot(clummped_extreme_dat$hwe_out_all,10,180,6,F,cbbPalette[c(1:5,7)],"Out All")
+nofilt<-admix_plot(clummped_extreme_dat$nofilt,10,180,6,F,cbbPalette[c(1:5,7)],"No Filt")
 
 plot_grid(extreme_fst_means, extreme_pcst_fst,extreme_pcst_fst_noacross,
           extreme_pcst_all,extreme_pcst_noacross,extreme_struc_nucdist
