@@ -10,6 +10,16 @@ read_struc_nucmat<-function(file){
   mean(na.omit(mat))
 }
 
+read_struc_nucmat_iso<-function(file){
+  x<-readLines(file)
+  x<-x[37:44]
+  data<-list()
+  for (i in 1:length(x) ) {
+    data[[i]]<-read.table(textConnection(x[[i]]))
+  }
+  mat<-as.numeric(as.matrix(do.call("rbind",data)[,2:9]))
+  mean(na.omit(mat))
+}
 library(hierfstat)
 library(tidyverse)
 library(adegenet)
@@ -965,3 +975,6 @@ gl.drop.loc <- function(x, loc.list=NULL, first=NULL, last=NULL, verbose=NULL){
   return(x2)
   
 }
+cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+cbp1 <- c("#999999", "#E69F00", "#56B4E9", "#009E73",
+          "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
