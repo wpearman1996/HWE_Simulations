@@ -3,7 +3,7 @@ library(vcfR)
 library(devtools)
 library(stringr)
 #library(radiator)
-setwd("/home/peawi142/HWE_zebra/real_data/zebra/single_SNPs/")
+setwd("/home/peawi142/HWE_Simulations/real_data/zebra/single_SNPs/")
 zebra_PS_names <- list.files(path = "./",pattern="*.csv",
                               recursive = T,full.names = T)
 zebra_PS_names<-zebra_PS_names[grepl("PCA",zebra_PS_names)]

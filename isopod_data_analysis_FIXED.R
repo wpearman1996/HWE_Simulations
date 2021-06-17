@@ -2,10 +2,10 @@ library(dartR)
 library(vcfR)
 library(devtools)
 #library(radiator)
-setwd("/home/peawi142/HWE_Simulations/real_data/isopods/vcfs/VCFS_r2/monomorph_fix/")
+setwd("/home/peawi142/HWE_Simulations/real_data/isopods/vcfs/VCFS_r2/monomorph_fix/ploidy_HWE_nloci_testing/poly_vcfs/")
 
 isopod_PS_names <- list.files(path = "./",pattern="*.csv",
-                            recursive = T,full.names = T)
+                              recursive = T,full.names = T)
 isopod_PS_names<-isopod_PS_names[grepl("PCA",isopod_PS_names)]
 isopod_PS <- lapply(isopod_PS_names,read.csv)
 a<-paste(word(isopod_PS_names,3,sep="/"))
@@ -13,7 +13,7 @@ b<-paste(word(isopod_PS_names,3,sep="/"))
 c<-paste(word(b,1,2,sep="[.]"))
 names(isopod_PS) <- paste0(word(c,1,2,sep="_"))
 isopod_PS<-isopod_PS[grepl("*subrep*",names(isopod_PS))]
-file <- read.vcfR("../nofilt_fixed_isopod_vcf_subrep5.recode.vcf",verbose = FALSE)
+file <- read.vcfR("../../../nofilt_fixed_isopod_vcf_subrep5.recode.vcf",verbose = FALSE)
 file_gl <- vcfR2genlight(file)
 
 popmap<-read.csv("~/HWE_Simulations/real_data/isopods/metadata.csv")
@@ -40,8 +40,8 @@ ggplot(pcst_isopodPS, aes(x=V1, y=Filter)) +
   geom_jitter(position=position_jitter(0))  + coord_flip()
 
 pcst_isopodPS$Filter<-ifelse(pcst_isopodPS$Filter=="nofilt","No Filt",
-                           ifelse(pcst_isopodPS$Filter=="any","HWE Out Any",
-                                  ifelse(pcst_isopodPS$Filter=="all","HWE Out All","HWE Out Across")))
+                             ifelse(pcst_isopodPS$Filter=="any","HWE Out Any",
+                                    ifelse(pcst_isopodPS$Filter=="all","HWE Out All","HWE Out Across")))
 
 
 
@@ -81,8 +81,8 @@ isopod_fsts<-data.frame(b,c)
 colnames(isopod_fsts)<-c("Fst","Filter")
 isopod_fsts$Filter<-word(isopod_fsts$Filter,1,2,sep="_")
 isopod_fsts$Filter<-ifelse(isopod_fsts$Filter=="sim_nofilt","No Filt",
-                             ifelse(isopod_fsts$Filter=="sim_any","HWE Out Any",
-                                    ifelse(isopod_fsts$Filter=="sim_all","HWE Out All","HWE Out Across")))
+                           ifelse(isopod_fsts$Filter=="sim_any","HWE Out Any",
+                                  ifelse(isopod_fsts$Filter=="sim_all","HWE Out All","HWE Out Across")))
 ggplot(isopod_fsts,aes(x=Fst,y=Filter))+ geom_density_ridges() + theme_minimal() + ggtitle("isopod_PS_Fst") +
   xlab("Fst")
 
@@ -97,7 +97,7 @@ ggplot(isopod_fsts,aes(x=Fst,y=Filter))+  #theme_minimal() +
 
 
 ####### STRUCTURE
-setwd("~/HWE_Simulations/real_data/isopods/structure_nonpolyploid/")
+setwd("~/HWE_Simulations/real_data/isopods/ploidy_HWE_nloci_testing/structure/")
 files<-list.files(pattern="*out_f")
 struc_mats<-lapply(files,read_struc_nucmat_k8)
 struc_mats<-do.call("rbind",struc_mats)
@@ -113,16 +113,16 @@ struc_mats%>%
   summarise(Mean=mean(struc_mats), Max=max(struc_mats), Min=min(struc_mats), Median=median(struc_mats), Std=sd(struc_mats))
 
 
-struc_mats<-rbind(struc_mats,
-                  struc_mats[struc_mats$filter=="HWE Out Across",],
-                  struc_mats[struc_mats$filter=="HWE Out Across",],
-                  struc_mats[struc_mats$filter=="HWE Out Across",],
-                  struc_mats[struc_mats$filter=="HWE Out Across",],
-                  struc_mats[struc_mats$filter=="HWE Out Across",],
-                  struc_mats[struc_mats$filter=="HWE Out Across",],
-                  struc_mats[struc_mats$filter=="HWE Out Across",],
-                  struc_mats[struc_mats$filter=="HWE Out Across",],
-                  struc_mats[struc_mats$filter=="HWE Out Across",]) # we need to add pseudo values to make ridgeplot add a distibution - we will modify this for the figure later.
+#struc_mats<-rbind(struc_mats,
+#                  struc_mats[struc_mats$filter=="HWE Out Across",],
+#                  struc_mats[struc_mats$filter=="HWE Out Across",],
+#                  struc_mats[struc_mats$filter=="HWE Out Across",],
+#                  struc_mats[struc_mats$filter=="HWE Out Across",],
+#                  struc_mats[struc_mats$filter=="HWE Out Across",],
+#                  struc_mats[struc_mats$filter=="HWE Out Across",],
+#                  struc_mats[struc_mats$filter=="HWE Out Across",],
+#                  struc_mats[struc_mats$filter=="HWE Out Across",],
+#                  struc_mats[struc_mats$filter=="HWE Out Across",]) # we need to add pseudo values to make ridgeplot add a distibution - we will modify this for the figure later.
 
 isopod_struc_nucdist <- ggplot(struc_mats,aes(x=struc_mats,y=filter)) + theme_minimal() + xlab("Nuc Dist") + ylab("HWE Filter") +
   geom_density_ridges(quantile_lines=TRUE, quantile_fun=function(x,...)median(x), scale=1,bandwidth=0.01)
@@ -224,7 +224,7 @@ struc_mats<-rbind(struc_mats,
                   struc_mats[struc_mats$filter=="HWE Out Any",],
                   struc_mats[struc_mats$filter=="HWE Out Any",],
                   struc_mats[struc_mats$filter=="HWE Out Any",]
-                  ) # we need to add pseudo values to make ridgeplot add a distibution - we will modify this for the figure later.
+) # we need to add pseudo values to make ridgeplot add a distibution - we will modify this for the figure later.
 struc_mats$filter<-gsub("HWE ","",struc_mats$filter)
 isopod_polyploidy_struc_nucdist <- ggplot(struc_mats,aes(x=struc_mats,y=filter)) + theme_minimal() + xlab("Nuc Dist") + ylab("HWE Filter") +
   geom_density_ridges(quantile_lines=TRUE, quantile_fun=function(x,...)median(x), scale=1,bandwidth=0.01)
@@ -237,7 +237,7 @@ isopod_polyploidy_struc_mats_plot<-ggplot(isopod_polyploidy_struc_mats,aes(x=str
                       vline_size = 1, vline_color = "red",
                       point_size = 0.4, point_alpha = 0.3,rel_min_height = 0.000000000001,
   ) +
-xlab("StructureNucDist")#+xlim(-0.002,0.002)
+  xlab("StructureNucDist")#+xlim(-0.002,0.002)
 
 plot_grid(isopod_fst_means, isopod_pcst_fst,isopod_pcst_fst_noacross,
           isopod_pcst_all,isopod_pcst_noacross,isopod_struc_nucdist
@@ -284,5 +284,5 @@ ggplot(isopod_fis_dat,aes(x=Hs,y=Filt))+  #theme_minimal() +
                       quantile_lines=TRUE, 
                       quantile_fun=function(x,...)median(x),
                       vline_size = 1, vline_color = "red", bandwidth=0.001) +
-    theme_bw() + ylab("HWE Filter") + facet_grid(.~DatType,scales="free") 
+  theme_bw() + ylab("HWE Filter") + facet_grid(.~DatType,scales="free") 
 

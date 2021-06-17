@@ -59,7 +59,7 @@ xtest<-list()
 b<-vector()
 for ( i in 1:length(fst_simulations_dat)){
   b[i]<-mean(as.matrix(fst_simulations_dat[[i]][2:7]),na.rm=T)
-  c[i]<-t
+#  c[i]<-t
 }
 
 b<-data.frame(b)

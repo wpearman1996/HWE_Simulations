@@ -111,7 +111,7 @@ meltq <- reshape::melt(clummped_extreme_dat_melt,id.vars=c("Filter"))
 meltq$IndName<-rep(1:180,4)
 meltq$Filter = factor(meltq$Filter, levels=c('nofilt','out_any','out_all','out_across'))
 extreme_struc_mats <- struc_mats
-extreme_struc_nucdist <- ggplot(struc_mats,aes(x=struc_mats,y=filter)) + theme_minimal() + xlab("Nuc Dist") + ylab("HWE Filter") #+
+extreme_struc_nucdist <- ggplot(extreme_struc_mats,aes(x=struc_mats,y=filter)) + theme_minimal() + xlab("Nuc Dist") + ylab("HWE Filter") +
   geom_density_ridges(quantile_lines=TRUE, quantile_fun=function(x,...)median(x), scale=1)
 
 extreme_struc_nucdist
