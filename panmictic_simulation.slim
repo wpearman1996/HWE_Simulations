@@ -1,0 +1,75 @@
+initialize() {
+	defineConstant("seed",getSeed());
+	initializeSLiMModelType("nonWF");
+	defineConstant("K", 1000);
+	defineConstant("lateNe",12000);
+	defineConstant("m", 0.1);
+	defineConstant("ngen",10000);
+	defineConstant("mu1",0.08);
+	defineConstant("L", c(0.2, 0.05, 0.05, 0.1, 0.25, 0.5, 0.75, 1.0));
+	defineConstant("Z",104650013);
+	initializeSLiMOptions(nucleotideBased=T);
+	defineConstant("genome", initializeAncestralNucleotides("/Users/williampearman/Dropbox/PhD Project/Side Projects/HWE_Study/Revisions_rerunsimulations/newgenome.txt"));
+	initializeMutationTypeNuc("m1",0.5,"f",0.0);
+	m1.convertToSubstitution = T;
+	initializeGenomicElementType("g1", m1,1, mmJukesCantor(1e-8));// c(0.99,0.01));
+	initializeGenomicElement(g1, 0, Z);
+	initializeSex(chromosomeType="A");
+	lines = readFile("/Users/williampearman/Dropbox/PhD Project/Side Projects/HWE_Study/Revisions_rerunsimulations/newrecombrates.txt");
+	rates = NULL;
+	ends = NULL;
+
+	for (line in lines)
+	{
+		components = strsplit(line, "\t");
+		ends = c(ends, asInteger(components[0]));
+		rates = c(rates, asFloat(components[1]));
+	}
+
+	ends = c(ends[1:(size(ends)-1)] - 2, 104650013);
+	rates = rates;
+	initializeRecombinationRate(rates, ends);
+}
+reproduction(NULL, "F") {
+	if (individual.age > 2) {
+		mate = subpop.sampleIndividuals(1,sex ="M", minAge=3);
+		subpop.addCrossed(individual, mate);
+	}
+}
+reproduction(NULL, "M") {
+	if (individual.age > 2) {
+		mate = subpop.sampleIndividuals(1,sex="F", minAge=3);
+		subpop.addCrossed(mate,individual);
+	}
+}
+1 {
+	//sim.setValue("FST", 0.0);
+	sim.addSubpop("p1", 1000);
+	p1.individuals.age = rdunif(1000, min=0, max=7);}
+
+1:135000 early(){ // change to generation split start
+	inds = p1.individuals;
+	ages = inds.age;
+	mortality = L[ages];
+	survival = 1 - mortality;
+	inds.fitnessScaling = survival;
+	p1.fitnessScaling = K / (p1.individualCount * mean(survival));
+}
+
+135000:150000 early(){  // change to generation split start
+	// life table based individual mortality
+	for (subpop in sim.subpopulations){
+		inds = subpop.individuals;
+		ages = inds.age;
+		mortality = L[ages];
+		survival = 1 - mortality;
+		inds.fitnessScaling = survival;
+		subpop.fitnessScaling = lateNe / (subpop.individualCount * mean(survival));
+	}
+}
+
+late(){print(sim.generation); print(sim.countOfMutationsOfType(m1 ));}
+150000 {
+	samp1=p1.sampleIndividuals(180).genomes;
+	writeFile(paste("~/HWE_Study_Dec2020/panmictic_results",asString(seed),".txt",sep="_"),asString(fsts));
+}

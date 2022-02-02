@@ -10,7 +10,7 @@ read_struc_nucmat<-function(file){
   mean(na.omit(mat))
 }
 
-read_struc_nucmat_iso<-function(file){
+read_struc_nucmat_k8<-function(file){
   x<-readLines(file)
   x<-x[37:44]
   data<-list()
@@ -18,6 +18,26 @@ read_struc_nucmat_iso<-function(file){
     data[[i]]<-read.table(textConnection(x[[i]]))
   }
   mat<-as.numeric(as.matrix(do.call("rbind",data)[,2:9]))
+  mean(na.omit(mat))
+}
+read_struc_nucmat_k9<-function(file){
+  x<-readLines(file)
+  x<-x[37:45]
+  data<-list()
+  for (i in 1:length(x) ) {
+    data[[i]]<-read.table(textConnection(x[[i]]))
+  }
+  mat<-as.numeric(as.matrix(do.call("rbind",data)[,2:10]))
+  mean(na.omit(mat))
+}
+read_struc_nucmat_k12<-function(file){
+  x<-readLines(file)
+  x<-x[37:48]
+  data<-list()
+  for (i in 1:length(x) ) {
+    data[[i]]<-read.table(textConnection(x[[i]]))
+  }
+  mat<-as.numeric(as.matrix(do.call("rbind",data)[,2:13]))
   mean(na.omit(mat))
 }
 library(hierfstat)

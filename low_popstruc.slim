@@ -2,31 +2,31 @@ initialize() {
 	defineConstant("seed",getSeed());
 	initializeSLiMModelType("nonWF");
 	defineConstant("K", 1000);
-	defineConstant("m", 0.1);
+	defineConstant("m", 0.01);
 	defineConstant("ngen",10000);
 	defineConstant("mu1",0.08);
 	defineConstant("L", c(0.2, 0.05, 0.05, 0.1, 0.25, 0.5, 0.75, 1.0));
-	defineConstant("Z",96600006);
+	defineConstant("Z",104650013);
 	initializeSLiMOptions(nucleotideBased=T);
-	defineConstant("genome", initializeAncestralNucleotides("~/HWE_Study_Dec2020/linear_pop_anc_fasta_nodemography.txt"));
+	defineConstant("genome", initializeAncestralNucleotides("/Users/williampearman/Dropbox/PhD Project/Side Projects/HWE_Study/Revisions_rerunsimulations/newgenome.txt"));
 	initializeMutationTypeNuc("m1",0.5,"f",0.0);
 	m1.convertToSubstitution = T;
 	initializeGenomicElementType("g1", m1,1, mmJukesCantor(1e-8));// c(0.99,0.01));
 	initializeGenomicElement(g1, 0, Z);
 	initializeSex(chromosomeType="A");
-	lines = readFile("~/HWE_Study_Dec2020/comeron_chr2_chr3_recom_map.txt");
+	lines = readFile("/Users/williampearman/Dropbox/PhD Project/Side Projects/HWE_Study/Revisions_rerunsimulations/newrecombrates.txt");
 	rates = NULL;
 	ends = NULL;
-	
+
 	for (line in lines)
 	{
 		components = strsplit(line, "\t");
 		ends = c(ends, asInteger(components[0]));
 		rates = c(rates, asFloat(components[1]));
 	}
-	
-	ends = c(ends[1:(size(ends)-1)] - 2, 96600006);
-	rates = rates * 1e-8;
+
+	ends = c(ends[1:(size(ends)-1)] - 2, 104650013);
+	rates = rates;
 	initializeRecombinationRate(rates, ends);
 }
 reproduction(NULL, "F") {
@@ -58,7 +58,7 @@ reproduction(NULL, "M") {
 	p1.individuals.age = rdunif(1000, min=0, max=7);}
 
 135000 early() { // change to generation split start
-		nIndA = sum(p1.individualCount); nMigA = nIndA * mu1; 
+		nIndA = sum(p1.individualCount); nMigA = nIndA * mu1;
   mig2 = sample(p1.individuals, asInteger(nMigA));
   p2.takeMigrants(mig2);
   mig3 = sample(p1.individuals, asInteger(nMigA));
@@ -112,11 +112,11 @@ reproduction(NULL, "M") {
   nInd7 = sum(p7.individualCount); nMig7 = rpois(1,nInd7 * m); mig7 = sample(p7.individuals, asInteger(nMig7));
   nInd8 = sum(p8.individualCount); nMig8 = rpois(1,nInd8 * m); mig8 = sample(p8.individuals, asInteger(nMig8));
   nInd9 = sum(p9.individualCount); nMig9 = rpois(1,nInd9 * m); mig9 = sample(p9.individuals, asInteger(nMig9));
-  nInd10 = sum(p10.individualCount); nMig10 = rpois(1,nInd10 * m); mig10 = sample(p10.individuals, asInteger(nMig10));  
+  nInd10 = sum(p10.individualCount); nMig10 = rpois(1,nInd10 * m); mig10 = sample(p10.individuals, asInteger(nMig10));
   nInd11 = sum(p11.individualCount); nMig11 = rpois(1,nInd11 * m); mig11 = sample(p11.individuals, asInteger(nMig11));
 	nInd12 = sum(p12.individualCount); nMig12 = rpois(1,nInd12 * m); mig12 = sample(p12.individuals, asInteger(nMig12));
-	
-  
+
+
 	nInd13 = sum(p12.individualCount); nMig13 = rpois(1,nInd13 * m); mig13 = sample(setDifference(p12.individuals, mig12), asInteger(nMig13));
 	nInd14 = sum(p11.individualCount); nMig14 = rpois(1,nInd14 * m); mig14 = sample(setDifference(p11.individuals, mig11), asInteger(nMig14));
 	nInd15 = sum(p10.individualCount); nMig15 = rpois(1,nInd15 * m); mig15 = sample(setDifference(p10.individuals, mig10), asInteger(nMig15));

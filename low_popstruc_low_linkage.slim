@@ -2,7 +2,7 @@ initialize() {
 	defineConstant("seed",getSeed());
 	initializeSLiMModelType("nonWF");
 	defineConstant("K", 1000);
-	defineConstant("m", 0.1);
+	defineConstant("m", 0.01);
 	defineConstant("ngen",10000);
 	defineConstant("mu1",0.08);
 	defineConstant("L", c(0.2, 0.05, 0.05, 0.1, 0.25, 0.5, 0.75, 1.0));
@@ -14,7 +14,7 @@ initialize() {
 	initializeGenomicElementType("g1", m1,1, mmJukesCantor(1e-8));// c(0.99,0.01));
 	initializeGenomicElement(g1, 0, Z);
 	initializeSex(chromosomeType="A");
-	lines = readFile("/Users/williampearman/Dropbox/PhD Project/Side Projects/HWE_Study/Revisions_rerunsimulations/newrecombrates.txt");
+	lines = readFile("/Users/williampearman/Dropbox/PhD Project/Side Projects/HWE_Study/Revisions_rerunsimulations/newrecombrates_high.txt");
 	rates = NULL;
 	ends = NULL;
 
@@ -163,7 +163,7 @@ late(){print(sim.generation); print(sim.countOfMutationsOfType(m1 ));}
 	samp9=p9.sampleIndividuals(30).genomes;
 	samp11=p11.sampleIndividuals(30).genomes;
 	vect_gen = c(samp1,samp3,samp5,samp7,samp9,samp11);
-	vect_gen.outputVCF(paste("~/HWE_Study_Dec2020/marg_PS",asString(seed),".vcf",sep="_"));
+	vect_gen.outputVCF(paste("~/HWE_Study_Dec2020/low_PS",asString(seed),".vcf",sep="_"));
 		fsts = rbind(calcFST(samp1, samp3),
 		calcFST(samp1, samp5),
 		calcFST(samp1, samp7),
@@ -183,5 +183,5 @@ late(){print(sim.generation); print(sim.countOfMutationsOfType(m1 ));}
 				"p5p7","p5p9","p5p11","p7p9","p7p11","p9p11");
 		fsts=cbind(asString(names),asString(fsts));
 	print(fsts);
-	writeFile(paste("~/HWE_Study_Dec2020/marg_PS_fst_results",asString(seed),".txt",sep="_"),asString(fsts));
+	writeFile(paste("~/HWE_Study_Dec2020/low_PS_fst_results",asString(seed),".txt",sep="_"),asString(fsts));
 }
